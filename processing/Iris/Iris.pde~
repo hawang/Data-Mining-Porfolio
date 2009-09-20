@@ -1,0 +1,305 @@
+IrisDataTable data;
+ArrayList iris_class_cat;
+int rowCount, columnCount;
+String[] iris_classes;
+
+float[] all_numbers;
+float maxData;
+float minData;
+
+float[] allmean;
+float[] allrange;
+
+float plotx1, ploty1, plotx2, ploty2;
+float first_tic=150; float offset=100;
+
+float volumeInt;
+
+PFont plotFont;
+
+int modecounter=0;
+int mode=0;
+// variables for the second part
+float[] all_sepal_length, all_sepal_width;
+String[] parallel_classes;
+float maxlength, minlength, maxwidth, minwidth;
+float widthInc, lengthInc;
+
+void setup() {
+  size(600, 405);
+  
+  data = new IrisDataTable("bezdekIris.data");
+  
+  iris_class_cat= new ArrayList();
+  
+  class_cat(data.getIrisClass()); //get unrepeated names of classes
+  
+  rowCount=data.rowCount;
+  columnCount=data.columnCount;
+  
+  //corners of plot
+  plotx1 = 75;
+  plotx2 = width-plotx1-100;
+  ploty1 = 60;
+  ploty2 = height-ploty1;
+ 
+  plotFont=createFont("SansSerif",20); 
+  textFont(plotFont);
+ 
+  smooth();
+  
+}
+
+void draw() {
+  background(224);
+  if(mode==0){
+    getAllNumbers();
+    drawDataRect();
+    drawTitle();
+    drawClassLabel();
+    drawVolumeLabels();
+    drawDataBars();
+    drawLegend(); 
+    noStroke();
+  }
+  else{
+     getAllNumbers2();
+     drawDataRect();
+     drawTitle2();
+     drawVolumeLabels2();
+     drawDataPoints();
+     drawLegend2();
+  }
+}
+
+void drawLegend(){
+  noStroke();
+  fill(255,0,0);
+  rectMode(CORNERS);
+  rect(plotx2+20, ploty1+20, plotx2+40, ploty1+40); 
+  fill(0);
+  textSize(12);
+  text("mean", plotx2+60, ploty1+40);
+  
+  fill(0,0,255);
+  rectMode(CORNERS);
+  rect(plotx2+20, ploty1+60, plotx2+40, ploty1+80); 
+  fill(0);
+  textSize(12);
+  text("range", plotx2+60, ploty1+80);
+}
+
+void drawLegend2(){
+  noStroke();
+  fill(255,0,0);
+  rectMode(CORNERS);
+  rect(plotx2+20, ploty1+20, plotx2+40, ploty1+40); 
+  fill(0);
+  textSize(12);
+  text(iris_classes[0], plotx2+60, ploty1+40);
+  
+  fill(0,255,0);
+  rectMode(CORNERS);
+  rect(plotx2+20, ploty1+60, plotx2+40, ploty1+80); 
+  fill(0);
+  textSize(12);
+  text(iris_classes[1], plotx2+70, ploty1+80);
+  
+  fill(0,0,255);
+  rectMode(CORNERS);
+  rect(plotx2+20, ploty1+100, plotx2+40, ploty1+120); 
+  fill(0);
+  textSize(12);
+  text(iris_classes[2], plotx2+65, ploty1+120);
+}
+
+//draw data bars
+void drawDataBars(){
+ drawMeanBars();
+ drawRangeBars(); 
+}
+
+void drawMeanBars(){
+  noStroke();
+  fill(255,0,0);
+  rectMode(CORNERS);
+  float x= first_tic;
+  
+  for(int i=0; i<allmean.length; i++){
+    float value= allmean[i];
+    float yvalue=map(value, minData-2*volumeInt, maxData+2*volumeInt, ploty2, ploty1);
+    rect(x-offset/4,yvalue,x,ploty2);
+    x=x+offset;
+  }
+}
+
+void drawRangeBars(){
+  noStroke();
+  fill(0,0,255);
+  rectMode(CORNERS);
+  float x= first_tic;
+  
+  for(int i=0; i<allrange.length; i++){
+    float value= allrange[i];
+    float yvalue=map(value, minData-2*volumeInt, maxData+2*volumeInt, ploty2, ploty1);
+    rect(x+offset/4,yvalue,x,ploty2);
+    x=x+offset;
+  }
+}
+
+//draw tics
+void drawVolumeLabels() {
+  fill(0);
+  textSize(10);
+ // textAlign(RIGHT, BOTTOM);
+  
+  stroke(128);
+  strokeWeight(1);
+  
+  volumeInt= (maxData-minData)/15;
+  
+  String measure="cm";
+  text(measure, plotx1-50, ploty2/2);
+  
+  for(float value=minData-2*volumeInt; value<=maxData+2*volumeInt; value=value+volumeInt){
+    float textOffset = textAscent()/2;
+    float y=map(value, minData-2*volumeInt, maxData+2*volumeInt, ploty2, ploty1);
+    text(value, plotx1 - 20, y+textOffset);
+    line(plotx1 - 4, y, plotx1, y);  
+  } 
+}
+
+void drawVolumeLabels2(){
+  fill(0);
+  textSize(10);
+  
+  stroke(128);
+  strokeWeight(1);
+  
+  String wid="width in cm";
+  String len="length\n in cm";
+  widthInc=(maxwidth-minwidth)/7;
+  lengthInc=(maxlength-minlength)/7;
+  for(float val=minwidth-widthInc; val<=maxwidth+widthInc; val=val+widthInc){
+    float x= map(val, minwidth-widthInc, maxwidth+widthInc, plotx1, plotx2);
+    text(val, x, ploty2+20); 
+    line(x, ploty2, x, ploty2+5);
+  }
+  text(wid, plotx2/2 , ploty2+40);
+  
+  for(float value=minlength-lengthInc; value<=maxlength+lengthInc; value=value+lengthInc){
+    float textOffset = textAscent()/2;
+    float y=map(value, minlength-lengthInc, maxlength+lengthInc, ploty2, ploty1);
+    text(value, plotx1 - 20, y+textOffset);
+    line(plotx1 - 4, y, plotx1, y);  
+  }
+  text(len, plotx1-50, ploty2/2); 
+}
+
+//draw data points with different colors on graph
+void drawDataPoints(){
+  for(int i = 0; i<all_sepal_length.length; i++){
+    float x=map(all_sepal_width[i], minwidth-widthInc, maxwidth+widthInc, plotx1, plotx2);
+    float y=map(all_sepal_length[i], minlength-lengthInc, maxlength+lengthInc, ploty2, ploty1);
+    if(parallel_classes[i].equals(iris_classes[0])){
+      fill(255,0,0);
+    }
+    else if (parallel_classes[i].equals(iris_classes[1])){
+       fill(0, 255, 0);
+    }
+    else if (parallel_classes[i].equals(iris_classes[2])){
+       fill(0, 0, 255);
+    }
+    ellipse(x,y,5,5);
+  }
+}
+
+//get numbers to draw
+void getAllNumbers(){
+  
+  all_numbers= new float[2*iris_classes.length];
+  allmean= new float[iris_classes.length];
+  allrange= new float[iris_classes.length];
+  int k=0;
+  for(int i=0; i<iris_classes.length; i++){
+    allmean[i]=data.getClassMean("sepal width", iris_classes[i]);
+    allrange[i]=data.rangeAttriClass("sepal width", iris_classes[i]);
+    all_numbers[k]=allmean[i];
+    all_numbers[k+1]=allrange[i]; //save both attributes in 1 array.
+    k=k+2;
+  }
+  maxData= data.max_val(all_numbers);
+  minData= data.min_val(all_numbers);
+}
+
+//set all values
+void getAllNumbers2(){
+  all_sepal_length = data.getAttribute("sepal length"); 
+  all_sepal_width = data.getAttribute("sepal width");
+  parallel_classes = data.getIrisClass();
+  maxlength=data.max_val(all_sepal_length); 
+  minlength=data.min_val(all_sepal_length);
+  maxwidth= data.max_val(all_sepal_width);
+  minwidth= data.min_val(all_sepal_width);
+}
+
+//set title
+void drawTitle(){
+  fill(0);
+  textSize(18);
+  String title= "Mean and Range of Iris Sepal Width";
+  text(title, plotx1+155, ploty1 - 10);
+}
+
+void drawTitle2(){
+  fill(0);
+  textSize(16);
+  String title= "Comparison of Iris Sepal Width and Sepal Length";
+  text(title, plotx1+170, ploty1 - 10);
+}
+
+//draw rect for ploting
+void drawDataRect(){
+  fill(255);
+  rectMode(CORNERS);
+  noStroke();
+  rect(plotx1, ploty1, plotx2, ploty2);
+}
+
+//label classes
+void drawClassLabel(){
+  fill(0,0,0);
+  textSize(18);
+  textAlign(CENTER, BOTTOM);
+  
+  //lines
+  stroke(244);
+  strokeWeight(1);
+  
+  float x = first_tic;
+  for(int i=0; i<iris_classes.length; i++){
+    text(iris_classes[i], x, ploty2 + 20);
+    line(x, ploty1, x, ploty2);
+    x=x+offset; 
+  }
+}
+
+void class_cat(String[] class_list){
+  for(int i=0; i<class_list.length; i++){
+    if(!(iris_class_cat.contains(class_list[i])))
+      iris_class_cat.add(class_list[i]);
+  }
+  
+  iris_classes=new String[iris_class_cat.size()];
+  Object i_class[] = iris_class_cat.toArray();
+  for(int j=0; j<iris_class_cat.size(); j++){
+    iris_classes[j]=(String)i_class[j];
+  }
+}
+
+void keyPressed() {
+  if (key == 's') {
+  modecounter++;
+  mode = modecounter % 2;
+  }
+}

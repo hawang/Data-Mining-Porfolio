@@ -1,0 +1,27 @@
+My partner is Zack Tillotson. This is the wine quality data set from
+the machine learning repository at University of California ar Irving:
+
+http://archive.ics.uci.edu/ml/datasets/Wine+Quality
+
+attribute information is:
+1 - fixed acidity
+2 - volatile acidity
+3 - citric acid
+4 - residual sugar
+5 - chlorides
+6 - free sulfur dioxide
+7 - total sulfur dioxide
+8 - density
+9 - pH
+10 - sulphates
+11 - alcohol
+Output variable (based on sensory data):
+12 - quality (score between 0 and 10)
+
+they say this can be used for regression in classification. their research is
+anomoly detection.
+
+We have two data sets, redwine and whitewine.
+
+i addition to predicting quality I would propose to Zack that we can predict by looking
+at the attributes to predict the type of wine. red or white knowing the sugar, acidity, cholorides, etc.
